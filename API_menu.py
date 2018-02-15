@@ -21,6 +21,7 @@ def exec_menu(choice):
     elif ch == '1':
         #this calls the function ESGMID3PAR7400C1 to execute the API calls
         ESGMID3PAR7400C1()
+        main_menu()
     elif ch == '0':
         exit()
 
