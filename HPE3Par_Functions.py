@@ -15,7 +15,7 @@ def create_vv(base_url, headers, name, vol_type, vol_size, cpg, vv_set):
         tpvv = True
         tdvv = True
     #Convert all our imported information to json format
-    json_list = {'name':name, 'tpvv':str(tpvv), 'tdvv':str(tdvv), 'sizeMiB':vol_size, 'cpg':cpg, 'snapCPG':cpg}
+    json_list = {'name':name, 'tpvv':bool(tpvv), 'tdvv':bool(tdvv), 'sizeMiB':int(vol_size), 'cpg':cpg, 'snapCPG':cpg}
     print (json.dumps(json_list))
     #This is the API call to create the Volume
     req = requests.post(url = base_url+'volumes', headers = headers, json = json_list, verify=False)
@@ -23,12 +23,13 @@ def create_vv(base_url, headers, name, vol_type, vol_size, cpg, vv_set):
     return (req.ok)
 
 def create_vlun(base_url, headers, name, hostname):
-    json_list = {'volumeName':name, 'hostname':hostname, 'autoLun':'True'}
+    json_list = {'volumeName':name, 'hostname':hostname, 'autoLun':True}
     req = requests.post(url = base_url + 'vluns', headers = headers, json = json_list, verify=False)
     return (req.ok)
 
 def add_vv2vvset(base_url, headers, vv_set, vv):
-    req = requests.post(url = base_url + 'volumesets', headers = headers, json = {'name': vv_set, 'setmembers':vv}, verify=False )
+    vv_arr=[vv]
+    req = requests.post(url = base_url + 'volumesets', headers = headers, json = {'name': vv_set, 'setmembers':vv_arr}, verify=False )
     return (req.ok)
 
 def delete_session(base_url, headers, key):

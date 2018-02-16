@@ -55,7 +55,7 @@ def exec_menu(base_url,session_key):
         #print ('\nEnter the Host to export to')
         #export2 = input(' >> ')
         print (HPE3Par_Functions.create_vv(base_url, headers, name, vol_type, vol_size, cpg, vv_set_name))
-        print (HPE3Par_Functions.add_vv2vvset(base_url,headers, name, 'VPX0032'))
+        print (HPE3Par_Functions.add_vv2vvset(base_url,headers, 'VPX0032', name))
         exec_menu(base_url, session_key)
 
     elif ch == '9':
