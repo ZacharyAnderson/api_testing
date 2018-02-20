@@ -28,6 +28,7 @@ def exec_menu(base_url,session_key):
     print ('Select the task you would like to complete:\n')
     print ('1. Create Virtual Volume Set\n')
     print ('2. Create Virtual Volumes\n')
+    print ('3. Query VV/Vlun information\n')
     print ('9. Exit\n')
     choice = input(' >> ')
     os.system('clear')
@@ -42,7 +43,7 @@ def exec_menu(base_url,session_key):
         exec_menu(base_url, session_key)
             
     elif ch == '2':
-        print ('Please enter the name of the Volume to be created:\n')
+        print ('Please enter the name of the Base Volume to be created:\n')
         name = input(' >> ')
         print ('\nPlease enter the size of the volume in GBs\n')
         vol_size = input(' >> ')
@@ -52,11 +53,39 @@ def exec_menu(base_url,session_key):
         vv_set_name = input(' >> ')
         print ('\nEnter the CPG')
         cpg = input(' >> ')
-        #print ('\nEnter the Host to export to')
-        #export2 = input(' >> ')
-        print (HPE3Par_Functions.create_vv(base_url, headers, name, vol_type, vol_size, cpg, vv_set_name))
-        print (HPE3Par_Functions.add_vv2vvset(base_url,headers, 'VPX0032', name))
+        print ('\nEnter # of the Host to export to')
+        print ('\n1 - VPX0222')
+        print('\n2 - VPX0122')
+        print('\n3 - VPX0184')
+        print('\n4 - VPX0248')
+        print('\n5 - VPX0032')
+        export2 = input(' >> ')
+        if export2 == '1':
+            export2 = 'VPX0222'
+        elif export2 == '2':
+            export2 = 'VPX0122'
+        elif export2 == '3':
+            export2 = 'VPX0184'
+        elif export2 == '4':
+            export2 = 'VPX0248'
+        elif export2 == '5':
+            export2 = 'VPX0032'
+        else:
+            "\nNot a valid response."
+            exec_menu(base_url, session_key)
+
+        print (HPE3Par_Functions.create_vv(base_url, headers, name, vol_type,(int(vol_size) * 1024), cpg))
+        print (HPE3Par_Functions.add_vv2vvset(base_url,headers, vv_set_name, name))
+        print(export2)
+        print (HPE3Par_Functions.create_vlun(base_url, headers, name, export2))
         exec_menu(base_url, session_key)
+
+    elif ch == '3':
+        print ('\nPlease enter the base volume you want to query:')
+        base_vol = input(' >> ')
+        print (HPE3Par_Functions.query_vv(base_url, headers, base_vol))
+        exec_menu(base_url, session_key)
+        
 
     elif ch == '9':
         HPE3Par_Functions.delete_session(base_url,headers, session_key['key'])
@@ -67,8 +96,6 @@ def exec_menu(base_url,session_key):
         exec_menu(base_url, session_key)
 
             
-
-
     #print (HPE3Par_Functions.create_vvset(base_url, headers, 'Api_test'))
     #d = requests.delete(url = base_url+'credentials/'+session_key['key'], headers = headers,verify=False)
     return
