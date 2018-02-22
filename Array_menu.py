@@ -4,10 +4,11 @@ import HPE3Par_Functions
 
 # This Function will be used to authenticate into the ESGMID3PAR7400C1 API
 # and be interactive for specific types of programming tasks
-def ESGMID3PAR7400C1():
+def HPE3Par(ipaddr):
     print ('You made it into ESGMID3PAR7400C1\n')
     print ('Here we have the ability to complete basic storage administration tasks through the HPE 3PAR WSAPI.\n')
-    base_url = 'https://192.168.142.50:8080/api/v1/'
+    
+    base_url = 'https://' + ipaddr +':8080/api/v1/'
 
     r = requests.post(url = base_url + 'credentials', json = {'user':'3paradm','password':'bare4115.'},
     headers={'Content-Type':'application/json'}, verify=False)
@@ -33,18 +34,23 @@ def exec_menu(base_url,session_key):
     choice = input(' >> ')
     os.system('clear')
     ch = choice.lower()
-    if ch == '':
-        print ('Invalid Choice')
-        exec_menu(base_url, session_key)
-    elif ch == '1':
+    
+    #This will start the menus process
+    #'1' being to create a new volume set
+    if ch == '1':
         print ('Please Enter the name of the new Volume Set to be created:\n')
         vv_set_name = input(' >> ')
         print (HPE3Par_Functions.create_vvset(base_url,headers,vv_set_name))
         exec_menu(base_url, session_key)
-            
+    #'2' Will create 1 or more volumes of the same size
     elif ch == '2':
         print ('Please enter the name of the Base Volume to be created:\n')
         name = input(' >> ')
+        print("Please enter the amount of volumes of the same size you would like to create\n")
+        vol_amount = int(input(' >> '))
+        print ("Please enter the volume number you would like to start at:\n")
+        print ("If a new Host, put 1 as this is default\n")
+        count = int(input(' >> '))
         print ('\nPlease enter the size of the volume in GBs\n')
         vol_size = input(' >> ')
         print ('\nPlease enter a 0 for tpvv, or a 1 tdvv \n')
@@ -53,17 +59,19 @@ def exec_menu(base_url,session_key):
         vv_set_name = input(' >> ')
         print ('\nEnter the CPG')
         cpg = input(' >> ')
+       
         print ('\nEnter # of the Host to export to')
-        print ('\n1 - VPX0222')
-        print('\n2 - VPX0122')
-        print('\n3 - VPX0184')
-        print('\n4 - VPX0248')
-        print('\n5 - VPX0032')
+        print ('\n1 - VPX0222 - Metro 2 LDC')
+        print('\n2 - VPX0122 - Metro 2 MDC')
+        print('\n3 - VPX0184 - Metro 1 LDC')
+        print('\n4 - VPX0248 - Local LDC')
+        print('\n5 - VPX0032 - Metro 1 MDC')
         export2 = input(' >> ')
+        
         if export2 == '1':
             export2 = 'VPX0222'
         elif export2 == '2':
-            export2 = 'VPX0122'
+            export2 = 'VPX0112'
         elif export2 == '3':
             export2 = 'VPX0184'
         elif export2 == '4':
@@ -71,32 +79,33 @@ def exec_menu(base_url,session_key):
         elif export2 == '5':
             export2 = 'VPX0032'
         else:
-            "\nNot a valid response."
+            print ("\nNot a valid response.")
             exec_menu(base_url, session_key)
 
-        print (HPE3Par_Functions.create_vv(base_url, headers, name, vol_type,(int(vol_size) * 1024), cpg))
-        print (HPE3Par_Functions.add_vv2vvset(base_url,headers, vv_set_name, name))
-        print(export2)
-        print (HPE3Par_Functions.create_vlun(base_url, headers, name, export2))
+        while vol_amount > 0:
+            print (HPE3Par_Functions.create_vv(base_url, headers, name + "_" + str(count), vol_type,(int(vol_size) * 1024), cpg))
+            print (HPE3Par_Functions.add_vv2vvset(base_url,headers, vv_set_name, name + "_" + str(count)))
+            print(export2)
+            print (HPE3Par_Functions.create_vlun(base_url, headers, name + "_" + str(count), export2))
+            count += 1
+            vol_amount -= 1
         exec_menu(base_url, session_key)
-
+    #'3' Will query the base volume name for all volumes listed
     elif ch == '3':
         print ('\nPlease enter the base volume you want to query:')
         base_vol = input(' >> ')
         print (HPE3Par_Functions.query_vv(base_url, headers, base_vol))
         exec_menu(base_url, session_key)
         
-
+    # will exit the Array menu you are in
     elif ch == '9':
         HPE3Par_Functions.delete_session(base_url,headers, session_key['key'])
         return
-
+    #Any choice not written will bring you back to the top of the menu
     else:
         print ('invalid input')
         exec_menu(base_url, session_key)
 
             
-    #print (HPE3Par_Functions.create_vvset(base_url, headers, 'Api_test'))
-    #d = requests.delete(url = base_url+'credentials/'+session_key['key'], headers = headers,verify=False)
     return
 

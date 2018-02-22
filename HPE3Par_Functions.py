@@ -9,7 +9,7 @@ def create_vv(base_url, headers, name, vol_type, vol_size, cpg):
     #vol_type will be broken out to fill the requirments
     #for Thin Provisioning and Dedup Enabled Devices
     if vol_type == '1':
-        tpvv = True
+        tpvv = False
         tdvv = True
     else:
         tpvv = True
