@@ -11,7 +11,7 @@ def main_menu():
     print ('4. ESGMID3PAR-22WT\n')
     print ('5. ESGNET3PAR7400C\n')
     print ('6. ESGPL3PAR20K1\n')
-    print ('7. ESGPM3PAR20K1')
+    print ('7. ESGPM3PAR20K1\n')
     print ('0. Quit\n')
     choice = input(' >> ')
     # Gets input from Storage Administrator and will call function to execute menu choice

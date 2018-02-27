@@ -1,38 +1,34 @@
-import os, sys
-import requests, json
+import os, sys, urllib3
+import requests, json, urllib3
 import HPE3Par_Functions
-
+import pprint
 # This Function will be used to authenticate into the ESGMID3PAR7400C1 API
 # and be interactive for specific types of programming tasks
 def HPE3Par(ipaddr):
+    os.system('clear')
     print ('You made it into ESGMID3PAR7400C1\n')
     print ('Here we have the ability to complete basic storage administration tasks through the HPE 3PAR WSAPI.\n')
     
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     base_url = 'https://' + ipaddr +':8080/api/v1/'
 
     r = requests.post(url = base_url + 'credentials', json = {'user':'3paradm','password':'bare4115.'},
     headers={'Content-Type':'application/json'}, verify=False)
-    os.system('clear')
     # Take the generated session key and set it up on the header dictionary
     session_key = json.loads(r.text)
-    '''headers = {'X-HP3PAR-WSAPI-SessionKey':session_key['key']}
     print ('You have now successfully logged into the 3PAR.\n')
-    print ('Select the task you would like to complete:\n')
-    print ('1. Create Virtual Volume Set\n')
-    print ('2. Create Virtual Volumes\n')
-    choice = input(' >> ')'''
     exec_menu(base_url, session_key)
 
 def exec_menu(base_url,session_key):
     headers = {'X-HP3PAR-WSAPI-SessionKey':session_key['key']}
-    print ('You have now successfully logged into the 3PAR.\n')
     print ('Select the task you would like to complete:\n')
     print ('1. Create Virtual Volume Set\n')
     print ('2. Create Virtual Volumes\n')
     print ('3. Query VV/Vlun information\n')
+    print ('4. Query VVset names\n')
+    print ('5. Query CPG names\n')
     print ('9. Exit\n')
     choice = input(' >> ')
-    os.system('clear')
     ch = choice.lower()
     
     #This will start the menus process
@@ -83,10 +79,16 @@ def exec_menu(base_url,session_key):
             exec_menu(base_url, session_key)
 
         while vol_amount > 0:
-            print (HPE3Par_Functions.create_vv(base_url, headers, name + "_" + str(count), vol_type,(int(vol_size) * 1024), cpg))
-            print (HPE3Par_Functions.add_vv2vvset(base_url,headers, vv_set_name, name + "_" + str(count)))
-            print(export2)
-            print (HPE3Par_Functions.create_vlun(base_url, headers, name + "_" + str(count), export2))
+            if (HPE3Par_Functions.create_vv(base_url, headers, name + "_" + str(count), vol_type,(int(vol_size) * 1024), cpg)) == False:
+                print ("There was an error creating the Virtual Volume\n")
+                exec_menu(base_url, session_key)
+            if (HPE3Par_Functions.add_vv2vvset(base_url,headers, vv_set_name, name + "_" + str(count))) == False:
+                print ("There was a problem adding the virtual volume to the VVset\n")
+                print ("The VVset may not exist\n")
+                exec_menu(base_url, session_key)
+            if (HPE3Par_Functions.create_vlun(base_url, headers, name + "_" + str(count), export2)) == False:
+                print ("There was a problem exporting the VV -> Vlun.\n")
+                exec_menu(base_url, session_key)
             count += 1
             vol_amount -= 1
         exec_menu(base_url, session_key)
@@ -94,7 +96,17 @@ def exec_menu(base_url,session_key):
     elif ch == '3':
         print ('\nPlease enter the base volume you want to query:')
         base_vol = input(' >> ')
-        print (HPE3Par_Functions.query_vv(base_url, headers, base_vol))
+        HPE3Par_Functions.query_vv(base_url, headers, base_vol)
+        exec_menu(base_url, session_key)
+
+    elif ch == '4':
+        print ('Please enter the VVset you would like to query.\n')
+        vvset = input(' >> ')
+        HPE3Par_Functions.query_vvset(base_url, headers, vvset)
+        exec_menu(base_url, session_key)
+
+    elif ch == '5':
+        HPE3Par_Functions.query_cpgs(base_url, headers)
         exec_menu(base_url, session_key)
         
     # will exit the Array menu you are in
