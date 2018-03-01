@@ -2,6 +2,7 @@ import os, sys, urllib3
 import requests, json, urllib3
 import HPE3Par_Functions
 import pprint
+import configparser
 # This Function will be used to authenticate into the ESGMID3PAR7400C1 API
 # and be interactive for specific types of programming tasks
 def HPE3Par(ipaddr):
@@ -11,8 +12,11 @@ def HPE3Par(ipaddr):
     
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     base_url = 'https://' + ipaddr +':8080/api/v1/'
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    HPE_PASSWORD = config['HPE_3PAR']['HPE_PASSWORD']
 
-    r = requests.post(url = base_url + 'credentials', json = {'user':'3paradm','password':'bare4115.'},
+    r = requests.post(url = base_url + 'credentials', json = {'user':'3paradm','password':HPE_PASSWORD},
     headers={'Content-Type':'application/json'}, verify=False)
     # Take the generated session key and set it up on the header dictionary
     session_key = json.loads(r.text)
