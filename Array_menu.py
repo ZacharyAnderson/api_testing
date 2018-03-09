@@ -84,21 +84,35 @@ def exec_menu(base_url,session_key):
             print ("\nNot a valid response.")
             exec_menu(base_url, session_key)
 
+        print ('\nEnter the Storage View you would like to export to on the vplex')
+        print ('**Please leave empty if not exporting to a storage view at this time.**')
+        storageview_name = input(' >> ')
+
         while vol_amount > 0:
-            if (HPE3Par_Functions.create_vv(base_url, headers, name + "_" + str(count), vol_type,(int(vol_size) * 1024), cpg)) == False:
+            if not (HPE3Par_Functions.create_vv(base_url, headers, name + "_" + str(count), vol_type,(int(vol_size) * 1024), cpg)):
                 print ("There was an error creating the Virtual Volume\n")
                 exec_menu(base_url, session_key)
-            if (HPE3Par_Functions.add_vv2vvset(base_url,headers, vv_set_name, name + "_" + str(count))) == False:
+            if not (HPE3Par_Functions.add_vv2vvset(base_url,headers, vv_set_name, name + "_" + str(count))):
                 print ("There was a problem adding the virtual volume to the VVset\n")
                 print ("The VVset may not exist\n")
                 exec_menu(base_url, session_key)
-            if (HPE3Par_Functions.create_vlun(base_url, headers, name + "_" + str(count), export2)) == False:
+            if not (HPE3Par_Functions.create_vlun(base_url, headers, name + "_" + str(count), export2)):
                 print ("There was a problem exporting the VV -> Vlun.\n")
                 exec_menu(base_url, session_key)
             #Get specific WWN of the new volume so you can build the device on the VPLEX
             req = requests.get(url = base_url + 'volumes/'+ name + "_" + str(count), headers = headers, verify=False )
             vv_info = (req.json())
-            print (EMCVPLEX_Functions.claim_storage(name + "_" + str(count),vv_info['wwn'], export2))
+            if not (EMCVPLEX_Functions.claim_storage(name + "_" + str(count),vv_info['wwn'], export2)):
+                print ("There was a problem claiming device: " + name + "_" + str(count) + " on "+ export2 +"\n")
+            if not (EMCVPLEX_Functions.create_extent(name + "_" + str(count),export2)):
+                print ("There was a problem creating the extent for: " + name + "_" + str(count))
+            if not (EMCVPLEX_Functions.create_device(name + "_" + str(count),export2)):
+                print ("There was a problem creating the device for: " + name + "_" + str(count))
+            if not (EMCVPLEX_Functions.create_virtualvolume(name + "_" + str(count),export2)):
+                print ("There was a problem creating the virtual volume for: " + name + "_" + str(count))
+            if not storageview_name == '':
+                if not (EMCVPLEX_Functions.export_virtualvolume(name + "_" + str(count),export2, storageview_name)):
+                    print ("There was a problem exporting the virtual volume: " + (name + "_" + str(count)) + " to the view: " + storageview_name)   
             count += 1
             vol_amount -= 1
         exec_menu(base_url, session_key)
