@@ -1,22 +1,24 @@
 import os, sys, urllib3
 import requests, json, urllib3
 import HPE3Par_Functions
-import pprint
-import configparser
+import pprint, configparser
+import EMCVPLEX_Functions
+
 # This Function will be used to authenticate into the ESGMID3PAR7400C1 API
 # and be interactive for specific types of programming tasks
 def HPE3Par(ipaddr):
     os.system('clear')
     print ('You made it into ESGMID3PAR7400C1\n')
-    print ('Here we have the ability to complete basic storage administration tasks through the HPE 3PAR WSAPI.\n')
+    print ('We have the ability to complete basic storage administration tasks through the HPE 3PAR WSAPI.\n')
     
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     base_url = 'https://' + ipaddr +':8080/api/v1/'
     config = configparser.ConfigParser()
     config.read('config.ini')
     HPE_PASSWORD = config['HPE_3PAR']['HPE_PASSWORD']
+    HPE_USERNAME = config['HPE_3PAR']['HPE_USERNAME']
 
-    r = requests.post(url = base_url + 'credentials', json = {'user':'3paradm','password':HPE_PASSWORD},
+    r = requests.post(url = base_url + 'credentials', json = {'user':HPE_USERNAME,'password':HPE_PASSWORD},
     headers={'Content-Type':'application/json'}, verify=False)
     # Take the generated session key and set it up on the header dictionary
     session_key = json.loads(r.text)
@@ -93,6 +95,10 @@ def exec_menu(base_url,session_key):
             if (HPE3Par_Functions.create_vlun(base_url, headers, name + "_" + str(count), export2)) == False:
                 print ("There was a problem exporting the VV -> Vlun.\n")
                 exec_menu(base_url, session_key)
+            #Get specific WWN of the new volume so you can build the device on the VPLEX
+            req = requests.get(url = base_url + 'volumes/'+ name + "_" + str(count), headers = headers, verify=False )
+            vv_info = (req.json())
+            print (EMCVPLEX_Functions.claim_storage(name + "_" + str(count),vv_info['wwn'], export2))
             count += 1
             vol_amount -= 1
         exec_menu(base_url, session_key)
