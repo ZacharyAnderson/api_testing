@@ -1,13 +1,17 @@
 import requests, json, pprint
 
-#This will create Virtual volume sets on the 3Par
 def create_vvset(base_url, headers, name):
+    '''
+        This will create virtual volume sets on the 3par array.
+    '''
     req = requests.post(url = base_url + 'volumesets', headers = headers, json = {'name': name}, verify=False )
     return (req.ok)
 
 def create_vv(base_url, headers, name, vol_type, vol_size, cpg):
-    #vol_type will be broken out to fill the requirments
-    #for Thin Provisioning and Dedup Enabled Devices
+    '''
+        vol_type will be broken out to fill the requirements
+        for Thin Provisioning and Dedup Enabled Devices
+    '''
     if vol_type == '1':
         tpvv = False
         tdvv = True
@@ -22,21 +26,32 @@ def create_vv(base_url, headers, name, vol_type, vol_size, cpg):
     return (req.ok)
 
 def create_vlun(base_url, headers, name, hostname):
+    '''
+        This will export the Virtual Volume out to the host of choice.
+    '''
     json_list = {'volumeName':name, 'hostname':hostname, 'autoLun':bool(True), 'maxAutoLun':int(4000), 'lun':int(1)}
     req = requests.post(url = base_url + 'vluns', headers = headers, json = json_list, verify=False)
     return (req.ok)
 
 def add_vv2vvset(base_url, headers, vv_set, vv):
+    '''
+        Adds the newly created virtual volume to an existing virtual volume set.
+    '''
     vv_arr=[str(vv)]
     req = requests.put(url = base_url + 'volumesets/'+vv_set, headers = headers, json = {'action':int('1') ,'setmembers':vv_arr}, verify=False )
     return (req.ok)
 
 def delete_session(base_url, headers, key):
+    '''
+        Terminates the 3par WSAPI Session.
+    '''
     req = requests.delete(url = base_url + 'credentials/'+key, headers=headers, verify=False)
     return (req.ok)
 
-#query_vv will query the name you give and output all volumes that the name is a sub-string of
 def query_vv(base_url, headers, name):
+    '''
+        Queries the name you give and output all volumes that the name is a sub-string of
+    '''
     req = requests.get(url = base_url + 'volumes/', headers = headers, verify=False )
     vv_info = (req.json())
     is_basevol = False
@@ -48,8 +63,10 @@ def query_vv(base_url, headers, name):
         print ("The base volume does not exist.\n")
     return 
 
-#query_vvset will show you all vvsets with the substring inputted
 def query_vvset(base_url, headers, name):
+    '''
+        Shows you all Virtual Volume sets that match the substring inputted.
+    '''
     req = requests.get(url = base_url + 'volumesets', headers=headers, verify=False)
     vvset_info = req.json()
     is_vvset = False
@@ -62,6 +79,9 @@ def query_vvset(base_url, headers, name):
     return
 
 def query_cpgs(base_url, headers):
+    '''
+        Shows you all the available Common Provisioning Groups on the 3par
+    '''
     req = requests.get(url = base_url + 'cpgs', headers=headers, verify=False)
     cpg_info = req.json()
     for cpgs in cpg_info['members']:
