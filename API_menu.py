@@ -23,25 +23,25 @@ def exec_menu(choice):
     os.system('clear')
     ch = choice.lower()
     if ch == '1':
-        HPE3Par('192.168.142.50')
+        HPE3Par('192.168.142.50', 'ESGMID3PAR7400C1')
         main_menu()
     elif ch == '2':
-        HPE3Par('192.168.18.40')
+        HPE3Par('192.168.18.40', 'ESGLYN3PAR7400C1')
         main_menu()
     elif ch == '3':
-        HPE3Par('192.168.18.26')
+        HPE3Par('192.168.18.26', 'ESGLYN3PAR-25K8')
         main_menu()
     elif ch == '4':
-        HPE3Par('140.163.142.66')
+        HPE3Par('140.163.142.66', 'ESGMID3PAR-22WT')
         main_menu()
     elif ch == '5':
-        HPE3Par('140.163.146.193')
+        HPE3Par('140.163.146.193', 'ESGNET3PAR7400C')
         main_menu()
     elif ch == '6':
-        HPE3Par('192.168.18.23')
+        HPE3Par('192.168.18.23', 'ESGPL3PAR20K1')
         main_menu()
     elif ch == '7':
-        HPE3Par('10.254.200.29')
+        HPE3Par('10.254.200.29', 'ESGPM3PAR20K1')
         main_menu()
     elif ch == '0':
         exit()

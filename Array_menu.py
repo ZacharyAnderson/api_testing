@@ -6,9 +6,9 @@ import EMCVPLEX_Functions
 
 # This Function will be used to authenticate into the ESGMID3PAR7400C1 API
 # and be interactive for specific types of programming tasks
-def HPE3Par(ipaddr):
+def HPE3Par(ipaddr,arrayname):
     os.system('clear')
-    print ('You made it into ESGMID3PAR7400C1\n')
+    print ('You made it into: ' + arrayname +'!\n')
     print ('We have the ability to complete basic storage administration tasks through the HPE 3PAR WSAPI.\n')
     
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
