@@ -87,3 +87,37 @@ def query_cpgs(base_url, headers):
     for cpgs in cpg_info['members']:
         print ("{0:32}\n".format(cpgs['name']))
     return
+
+def remove_vlun(base_url, headers, volumeName, lun, hostname):
+    '''
+        remove_vlun unexports the 3par volume from the host.
+    '''
+    url = base_url + "vluns/" + str(volumeName) + "," + str(lun) + "," + str(hostname)
+    req = requests.delete(url = url, headers = headers, verify = False)
+    return req.ok
+
+def remove_storage_vol(base_url, headers, volumeName):
+    '''
+        remove_storage_vol deletes the storage volume from the 3Par array.
+    '''
+    url = base_url + "volumes/" + str(volumeName)
+    req = requests.delete(url = url, headers = headers, verify = False)
+    return req.ok
+
+def remove_vol_from_vvset(base_url, headers, volumeName):
+    '''
+        This function will first find which volumeset the volume belongs to.
+        Then we will remove the volume from the volume set.
+        If the volume is not in a volume set we will do nothing.
+    '''
+    url = base_url + "volumesets/"
+    req = requests.get(url = url, headers = headers, verify = False)
+    volumeset_info = req.json()
+    for sets in volumeset_info.get('members', ''):
+        for setmembers in sets.get('setmembers', ''):
+            if setmembers == volumeName:
+                vv_arr=[str(volumeName)]
+                json_list = {'action':int('2') ,'setmembers': vv_arr}
+                remove_volume = requests.put(url = url + sets.get('name', ''), headers = headers, json = json_list, verify = False )
+                return  remove_volume.ok
+    
