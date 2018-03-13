@@ -121,3 +121,11 @@ def remove_vol_from_vvset(base_url, headers, volumeName):
                 remove_volume = requests.put(url = url + sets.get('name', ''), headers = headers, json = json_list, verify = False )
                 return  remove_volume.ok
     
+def remove_vlun_dryrun(base_url, headers, volumeName, lun, hostname):
+    '''
+        This a dry-run version of our remove_vlun function.
+        We will run this to make sure we don't delete any of the
+        wrong volumes.
+    '''
+    url = base_url + "vluns/" + str(volumeName) + "," + str(lun) + "," + str(hostname)
+    print (url)
