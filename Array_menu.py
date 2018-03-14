@@ -4,6 +4,16 @@ import HPE3Par_Functions
 import pprint, configparser
 import EMCVPLEX_Functions
 
+hpe3parwwn_map = {
+    '192.168.142.50':'246B',
+    '192.168.18.40':'246C',
+    '192.168.18.26':'9525',
+    '140.163.142.66':'9106',
+    '140.163.146.193':'27B4',
+    '192.168.18.23':'9287',
+    '10.254.200.29':'AF8A'
+}
+
 # This Function will be used to authenticate into the ESGMID3PAR7400C1 API
 # and be interactive for specific types of programming tasks
 def HPE3Par(ipaddr,arrayname):
@@ -102,16 +112,16 @@ def exec_menu(base_url,session_key):
             #Get specific WWN of the new volume so you can build the device on the VPLEX
             req = requests.get(url = base_url + 'volumes/'+ name + "_" + str(count), headers = headers, verify=False )
             vv_info = (req.json())
-            if not (EMCVPLEX_Functions.claim_storage(name + "_" + str(count),vv_info['wwn'], export2)):
+            if not (EMCVPLEX_Functions.claim_storage(name + "_" + str(count) + "_" + hpe3parwwn_map[ipaddr],vv_info['wwn'], export2)):
                 print ("There was a problem claiming device: " + name + "_" + str(count) + " on "+ export2 +"\n")
-            if not (EMCVPLEX_Functions.create_extent(name + "_" + str(count),export2)):
+            if not (EMCVPLEX_Functions.create_extent(name + "_" + str(count) + "_" + hpe3parwwn_map[ipaddr],export2)):
                 print ("There was a problem creating the extent for: " + name + "_" + str(count))
-            if not (EMCVPLEX_Functions.create_device(name + "_" + str(count),export2)):
+            if not (EMCVPLEX_Functions.create_device(name + "_" + str(count) + "_" + hpe3parwwn_map[ipaddr],export2)):
                 print ("There was a problem creating the device for: " + name + "_" + str(count))
-            if not (EMCVPLEX_Functions.create_virtualvolume(name + "_" + str(count),export2)):
+            if not (EMCVPLEX_Functions.create_virtualvolume(name + "_" + str(count) + "_" + hpe3parwwn_map[ipaddr],export2)):
                 print ("There was a problem creating the virtual volume for: " + name + "_" + str(count))
             if not storageview_name == '':
-                if not (EMCVPLEX_Functions.export_virtualvolume(name + "_" + str(count),export2, storageview_name)):
+                if not (EMCVPLEX_Functions.export_virtualvolume(name + "_" + str(count) + "_" + hpe3parwwn_map[ipaddr],export2, storageview_name)):
                     print ("There was a problem exporting the virtual volume: " + (name + "_" + str(count)) + " to the view: " + storageview_name)   
             count += 1
             vol_amount -= 1

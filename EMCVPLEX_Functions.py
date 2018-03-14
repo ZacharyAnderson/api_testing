@@ -16,8 +16,8 @@ vplexip_map = {
 }
 
 vplexcluster_map = {
-    'VPX0222':'cluster-1',
-    'VPX0112':'cluster-2',
+    'VPX0222':'cluster-2',
+    'VPX0112':'cluster-1',
     'VPX0184':'cluster-1',
     'VPX0248':'cluster-1',
     'VPX0032':'cluster-2'
