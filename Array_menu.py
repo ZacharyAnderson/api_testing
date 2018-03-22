@@ -33,9 +33,9 @@ def HPE3Par(ipaddr,arrayname):
     # Take the generated session key and set it up on the header dictionary
     session_key = json.loads(r.text)
     print ('You have now successfully logged into the 3PAR.\n')
-    exec_menu(base_url, session_key)
+    exec_menu(base_url, session_key, ipaddr)
 
-def exec_menu(base_url,session_key):
+def exec_menu(base_url,session_key, ipaddr):
     headers = {'X-HP3PAR-WSAPI-SessionKey':session_key['key']}
     print ('Select the task you would like to complete:\n')
     print ('1. Create Virtual Volume Set\n')
@@ -92,23 +92,22 @@ def exec_menu(base_url,session_key):
             export2 = 'VPX0032'
         else:
             print ("\nNot a valid response.")
-            exec_menu(base_url, session_key)
+            exec_menu(base_url, session_key, ipaddr)
 
         print ('\nEnter the Storage View you would like to export to on the vplex')
-        print ('**Please leave empty if not exporting to a storage view at this time.**')
         storageview_name = input(' >> ')
 
         while vol_amount > 0:
             if not (HPE3Par_Functions.create_vv(base_url, headers, name + "_" + str(count), vol_type,(int(vol_size) * 1024), cpg)):
                 print ("There was an error creating the Virtual Volume\n")
-                exec_menu(base_url, session_key)
+                exec_menu(base_url, session_key, ipaddr)
             if not (HPE3Par_Functions.add_vv2vvset(base_url,headers, vv_set_name, name + "_" + str(count))):
                 print ("There was a problem adding the virtual volume to the VVset\n")
                 print ("The VVset may not exist\n")
-                exec_menu(base_url, session_key)
+                exec_menu(base_url, session_key, ipaddr)
             if not (HPE3Par_Functions.create_vlun(base_url, headers, name + "_" + str(count), export2)):
                 print ("There was a problem exporting the VV -> Vlun.\n")
-                exec_menu(base_url, session_key)
+                exec_menu(base_url, session_key, ipaddr)
             #Get specific WWN of the new volume so you can build the device on the VPLEX
             req = requests.get(url = base_url + 'volumes/'+ name + "_" + str(count), headers = headers, verify=False )
             vv_info = (req.json())
@@ -125,23 +124,23 @@ def exec_menu(base_url,session_key):
                     print ("There was a problem exporting the virtual volume: " + (name + "_" + str(count)) + " to the view: " + storageview_name)   
             count += 1
             vol_amount -= 1
-        exec_menu(base_url, session_key)
+        exec_menu(base_url, session_key, ipaddr)
     #'3' Will query the base volume name for all volumes listed
     elif ch == '3':
         print ('\nPlease enter the base volume you want to query:')
         base_vol = input(' >> ')
         HPE3Par_Functions.query_vv(base_url, headers, base_vol)
-        exec_menu(base_url, session_key)
+        exec_menu(base_url, session_key, ipaddr)
 
     elif ch == '4':
         print ('Please enter the VVset you would like to query.\n')
         vvset = input(' >> ')
         HPE3Par_Functions.query_vvset(base_url, headers, vvset)
-        exec_menu(base_url, session_key)
+        exec_menu(base_url, session_key, ipaddr)
 
     elif ch == '5':
         HPE3Par_Functions.query_cpgs(base_url, headers)
-        exec_menu(base_url, session_key)
+        exec_menu(base_url, session_key, ipaddr)
         
     # will exit the Array menu you are in
     elif ch == '9':
@@ -150,7 +149,7 @@ def exec_menu(base_url,session_key):
     #Any choice not written will bring you back to the top of the menu
     else:
         print ('invalid input')
-        exec_menu(base_url, session_key)
+        exec_menu(base_url, session_key, ipaddr)
 
             
     return
