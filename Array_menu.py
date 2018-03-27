@@ -53,7 +53,7 @@ def exec_menu(base_url,session_key, ipaddr):
         print ('Please Enter the name of the new Volume Set to be created:\n')
         vv_set_name = input(' >> ')
         print (HPE3Par_Functions.create_vvset(base_url,headers,vv_set_name))
-        exec_menu(base_url, session_key)
+        exec_menu(base_url, session_key, ipaddr)
     #'2' Will create 1 or more volumes of the same size
     elif ch == '2':
         print ('Please enter the name of the Base Volume to be created:\n')
