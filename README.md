@@ -61,7 +61,7 @@ Select the task you would like to complete:
 9. Exit
 ```
 
-An example of the Quer VV/Vlun information action:
+An example of the Query VV/Vlun information action:
 ```
 Please enter the base volume you want to query:
  >> PIWDI
